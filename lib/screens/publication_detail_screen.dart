@@ -16,59 +16,91 @@ class PublicationDetailScreen extends StatelessWidget {
     return Scaffold(
 
       appBar: AppBar(
-        title: const Text("Publication Detail"),
+        title: const Text(
+          "Publication Detail",
+        ),
       ),
 
-      body: Padding(
+      body: SingleChildScrollView(
+
         padding: const EdgeInsets.all(16),
 
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+        child: Column(
 
-            children: [
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
 
-              Text(
-                publication.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+          children: [
+
+            Text(
+              publication.title,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
+            ),
 
-              const SizedBox(height: 10),
+            const SizedBox(height: 20),
 
-              Text(
-                "Year: ${publication.publicationYear}",
+            Text(
+              "Publication Year: ${publication.publicationYear}",
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              "Journal: ${publication.journalName}",
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              "Citation Count: ${publication.citationCount}",
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              "DOI: ${publication.doi}",
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              "Authors",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
+            ),
 
-              Text(
-                "Citation: ${publication.citationCount}",
+            const SizedBox(height: 10),
+
+            ...publication.authors.map(
+              (author) => Padding(
+                padding:
+                    const EdgeInsets.only(
+                        bottom: 5),
+                child: Text(author),
               ),
+            ),
 
-              Text(
-                "Journal: ${publication.journalName}",
+            const SizedBox(height: 20),
+
+            const Text(
+              "Abstract",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
+            ),
 
-              Text(
-                "DOI: ${publication.doi}",
-              ),
+            const SizedBox(height: 10),
 
-              const SizedBox(height: 15),
-
-              const Text(
-                "Authors",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              ...publication.authors.map(
-                (e) => Text(e),
-              ),
-            ],
-          ),
+            Text(
+              publication.abstractText,
+            ),
+          ],
         ),
       ),
     );

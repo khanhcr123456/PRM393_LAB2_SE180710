@@ -4,6 +4,7 @@ class Publication {
   final int citationCount;
   final String journalName;
   final String doi;
+  final String abstractText;
   final List<String> authors;
 
   Publication({
@@ -12,30 +13,76 @@ class Publication {
     required this.citationCount,
     required this.journalName,
     required this.doi,
+    required this.abstractText,
     required this.authors,
   });
 
-  factory Publication.fromJson(Map<String, dynamic> json) {
-     List<String> authors = [];
+static String reconstructAbstract(
+    Map<String, dynamic>? abstractIndex) {
 
-    if (json["authorships"] != null) {
-      authors = (json["authorships"] as List)
-          .map<String>(
-            (e) => (e["author"]?["display_name"] ?? "").toString()
-          )
+  if (abstractIndex == null) {
+    return "Abstract unavailable";
+  }
+
+  List<MapEntry<String, int>> words = [];
+
+  abstractIndex.forEach((word, positions) {
+
+    for (var pos in positions) {
+
+      words.add(
+        MapEntry(word, pos),
+      );
+    }
+
+  });
+
+  words.sort(
+    (a, b) => a.value.compareTo(b.value),
+  );
+
+  return words
+      .map((e) => e.key)
+      .join(" ");
+}
+
+  factory Publication.fromJson(Map<String, dynamic> json) {
+    List<String> authors = [];
+
+    final authorships = json["authorships"];
+
+    if (authorships != null && authorships is List) {
+      authors = authorships
+          .map<String>((authorShip) {
+            if (authorShip is Map<String, dynamic>) {
+              final author = authorShip["author"];
+
+              if (author is Map<String, dynamic>) {
+                return author["display_name"]?.toString() ?? "";
+              }
+            }
+
+            return "";
+          })
+          .where((name) => name.isNotEmpty)
           .toList();
     }
 
     return Publication(
-      title: json["title"] ?? "",
-      publicationYear: json["publication_year"] ?? 0,
-      citationCount: json["cited_by_count"] ?? 0,
-      journalName:
-          json["primary_location"]?["source"]
-                  ?["display_name"] ??
-              "",
-      doi: json["doi"] ?? "",
-      authors: authors,
+       title: json["title"] ?? "",
+    publicationYear:
+        json["publication_year"] ?? 0,
+    citationCount:
+        json["cited_by_count"] ?? 0,
+    journalName:
+        json["primary_location"]?["source"]
+                ?["display_name"] ??
+            "Unknown Journal",
+    doi: json["doi"] ?? "",
+    abstractText: reconstructAbstract(
+      json["abstract_inverted_index"],
+    ),
+    authors: authors,
     );
   }
 }
