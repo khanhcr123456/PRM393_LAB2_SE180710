@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/publication.dart';
+import '../widgets/small_stat_card.dart';
+import '../widgets/wide_stat_card.dart';
 
 class DashboardScreen extends StatelessWidget {
   final List<Publication> publications;
@@ -96,11 +98,11 @@ class DashboardScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(child: _buildSmallCard('Total Pubs', totalPublications.toString(), Icons.article, Colors.blue)),
+                Expanded(child: SmallStatCard(title: 'Total Pubs', value: totalPublications.toString(), icon: Icons.article, color: Colors.blue)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildSmallCard('Avg Citations', averageCitations.toStringAsFixed(1), Icons.format_quote, Colors.orange)),
+                Expanded(child: SmallStatCard(title: 'Avg Citations', value: averageCitations.toStringAsFixed(1), icon: Icons.format_quote, color: Colors.orange)),
                 const SizedBox(width: 8),
-                Expanded(child: _buildSmallCard('Active Year', mostActiveYear > 0 ? mostActiveYear.toString() : 'N/A', Icons.calendar_today, Colors.green)),
+                Expanded(child: SmallStatCard(title: 'Active Year', value: mostActiveYear > 0 ? mostActiveYear.toString() : 'N/A', icon: Icons.calendar_today, color: Colors.green)),
               ],
             ),
             const SizedBox(height: 24),
@@ -109,70 +111,12 @@ class DashboardScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800]),
             ),
             const SizedBox(height: 12),
-            _buildWideCard('Top Journal', topJournal, Icons.library_books, Colors.purple),
+            WideStatCard(title: 'Top Journal', value: topJournal, icon: Icons.library_books, color: Colors.purple),
             const SizedBox(height: 12),
-            _buildWideCard('Top Author', topAuthor, Icons.person, Colors.indigo),
+            WideStatCard(title: 'Top Author', value: topAuthor, icon: Icons.person, color: Colors.indigo),
             const SizedBox(height: 12),
-            _buildWideCard('Most Influential Paper', topPaper?.title ?? 'N/A', Icons.star, Colors.red),
+            WideStatCard(title: 'Most Influential Paper', value: topPaper?.title ?? 'N/A', icon: Icons.star, color: Colors.red),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSmallCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 28, color: color),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWideCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          backgroundColor: color.withAlpha(51),
-          radius: 24,
-          child: Icon(icon, color: color, size: 28),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
         ),
       ),
     );

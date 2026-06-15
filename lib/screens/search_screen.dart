@@ -1,8 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/publication.dart';
-import '../services/openalex_service.dart';
-import 'publication_detail_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/publication_provider.dart';
+import '../widgets/publication_list_tile.dart';
 import 'trend_analysis_screen.dart';
 import 'influential_papers_screen.dart';
 import 'top_journals_screen.dart';
@@ -20,60 +19,23 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState
     extends State<SearchScreen> {
 
-  final TextEditingController controller =
-      TextEditingController();
-
-  final OpenAlexService service =
-      OpenAlexService();
-
-  List<Publication> publications = [];
-
-  bool isLoading = false;
-  Timer? _debounce;
-
+  final TextEditingController controller = TextEditingController();
+  
   @override
   void dispose() {
-    _debounce?.cancel();
     controller.dispose();
     super.dispose();
   }
 
-  Future<void> search() async {
-    if (controller.text.trim().isEmpty) return;
-
-    setState(() {
-      isLoading = true;
-      publications = []; // Xóa kết quả cũ để ẩn nút và danh sách
-    });
-
-    try {
-
-      final result =
-          await service.searchPublications(
-              controller.text);
-
-      setState(() {
-        publications = result;
-      });
-
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
-
-    }
-
-    setState(() {
-      isLoading = false;
-    });
+  void _performSearch() {
+    FocusScope.of(context).unfocus();
+    context.read<PublicationProvider>().search(controller.text);
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<PublicationProvider>();
+    final publications = provider.publications;
 
     return Scaffold(
 
@@ -167,7 +129,7 @@ class _SearchScreenState
 
             TextField(
               controller: controller,
-              onSubmitted: (_) => search(),
+              onSubmitted: (_) => _performSearch(),
               decoration: const InputDecoration(
                 labelText: "Research Topic",
                 border: OutlineInputBorder(),
@@ -178,15 +140,23 @@ class _SearchScreenState
             const SizedBox(height: 10),
 
             ElevatedButton(
-              onPressed: search,
-              child: const Text(
-                "Search",
-              ),
+              onPressed: _performSearch,
+              child: const Text("Search"),
             ),
 
             const SizedBox(height: 10),
 
-            if (isLoading)
+            if (provider.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  provider.errorMessage!,
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+            if (provider.isLoading)
               const CircularProgressIndicator(),
 
             Expanded(
@@ -197,36 +167,8 @@ class _SearchScreenState
                 itemBuilder:
                     (context, index) {
 
-                  final paper =
-                      publications[index];
-
-                  return Card(
-
-                    child: ListTile(
-                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PublicationDetailScreen(
-                              publication: paper,
-                            ),
-                          ),
-                        );
-                      },
-                      title:
-                          Text(paper.title),
-
-                      subtitle: Text(
-                        "Year: ${paper.publicationYear}\n"
-                        "Citation: ${paper.citationCount}\n"
-                        "Journal: ${paper.journalName}",
-                      ),
-                        trailing: const Icon(
-                        Icons.arrow_forward_ios,
-                      ),
-                    ),
-                  );
-
+                  final paper = publications[index];
+                  return PublicationListTile(paper: paper);
                 },
               ),
             ),
